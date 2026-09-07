@@ -51,6 +51,6 @@ def category_posts(request, category_slug):
             'category': category,
             'posts': posts_filter(
                 category.posts
-            )
+            ),
         }
     )

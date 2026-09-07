@@ -3,13 +3,13 @@ from django.db import models
 
 
 CHARFIELD_MAX_LENGTH = 256
-ADMIN_TITLE_MAX_LENGTH = 20
+TITLE_MAX_LENGTH = 20
 
 
 User = get_user_model()
 
 
-class BaseModel(models.Model):
+class CreatePublishBaseModel(models.Model):
     """Абстрактная модель для даты создания записи и публикации"""
 
     created_at = models.DateTimeField(
@@ -26,21 +26,21 @@ class BaseModel(models.Model):
         abstract = True
 
 
-class Location(BaseModel):
+class Location(CreatePublishBaseModel):
     name = models.CharField(
         max_length=CHARFIELD_MAX_LENGTH,
         verbose_name='Название места'
     )
 
-    class Meta(BaseModel.Meta):
+    class Meta(CreatePublishBaseModel.Meta):
         verbose_name = 'местоположение'
         verbose_name_plural = 'Местоположения'
 
     def __str__(self):
-        return self.name[:ADMIN_TITLE_MAX_LENGTH]
+        return self.name[:TITLE_MAX_LENGTH]
 
 
-class Category(BaseModel):
+class Category(CreatePublishBaseModel):
     title = models.CharField(
         max_length=CHARFIELD_MAX_LENGTH,
         verbose_name='Заголовок'
@@ -55,15 +55,15 @@ class Category(BaseModel):
         )
     )
 
-    class Meta(BaseModel.Meta):
+    class Meta(CreatePublishBaseModel.Meta):
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return self.title[:ADMIN_TITLE_MAX_LENGTH]
+        return self.title[:TITLE_MAX_LENGTH]
 
 
-class Post(BaseModel):
+class Post(CreatePublishBaseModel):
     title = models.CharField(
         max_length=CHARFIELD_MAX_LENGTH,
         verbose_name='Заголовок'
@@ -80,7 +80,7 @@ class Post(BaseModel):
         User,
         on_delete=models.CASCADE,
         verbose_name='Автор публикации',
-        related_name='posts_author'
+        related_name='posts'
     )
     location = models.ForeignKey(
         Location,
@@ -88,14 +88,14 @@ class Post(BaseModel):
         null=True,
         blank=True,
         verbose_name='Местоположение',
-        related_name='posts_location'
+        related_name='posts'
     )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         null=True,
         verbose_name='Категория',
-        related_name='posts_category'
+        related_name='posts'
     )
 
     class Meta:
@@ -104,4 +104,4 @@ class Post(BaseModel):
         ordering = ('-pub_date',)
 
     def __str__(self):
-        return self.title[:ADMIN_TITLE_MAX_LENGTH]
+        return self.title[:TITLE_MAX_LENGTH]

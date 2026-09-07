@@ -7,9 +7,11 @@ from .models import Category, Post
 POSTS_NUMBER_ON_INDEX = 5
 
 
-def posts_filter(queryset):
+def posts_filter(posts):
     """Применяет стандартные фильтры для опубликованных постов."""
-    return queryset.filter(
+    return posts.select_related(
+        'category', 'location', 'author'
+    ).filter(
         pub_date__lte=timezone.now(),
         is_published=True,
         category__is_published=True
@@ -21,11 +23,7 @@ def index(request):
         request,
         'blog/index.html',
         {
-            'posts': posts_filter(
-                Post.objects.select_related(
-                    'category', 'location', 'author'
-                )
-            )[:POSTS_NUMBER_ON_INDEX]
+            'posts': posts_filter(Post.objects)[:POSTS_NUMBER_ON_INDEX]
         }
     )
 
@@ -35,11 +33,7 @@ def post_detail(request, post_id):
         request,
         'blog/detail.html',
         {
-            'post': get_object_or_404(posts_filter(
-                Post.objects.select_related('category', 'location', 'author')
-            ),
-                pk=post_id
-            )
+            'post': get_object_or_404(posts_filter(Post.objects), pk=post_id)
         }
     )
 
@@ -56,9 +50,7 @@ def category_posts(request, category_slug):
         {
             'category': category,
             'posts': posts_filter(
-                category.posts_category.select_related(
-                    'category', 'location', 'author'
-                )
+                category.posts
             )
         }
     )
